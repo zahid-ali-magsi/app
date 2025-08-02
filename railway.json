@@ -6,7 +6,9 @@
         "setup": [
           "apt-get update",
           "apt-get install -y libgl1 git-lfs",
-          "git lfs install"
+          "git lfs install",
+          "pip install --upgrade pip",
+          "pip install -r requirements.txt"
         ]
       }
     }
