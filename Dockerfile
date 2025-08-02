@@ -1,36 +1,32 @@
 FROM python:3.10-slim
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
     libgl1 \
     git \
     git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure Git LFS
+# Initialize Git LFS before copying files
 RUN git lfs install
 
 WORKDIR /app
 
-# Install Python dependencies
+# Copy ONLY requirements first (better caching)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application (including .gitattributes)
+# Copy everything else
 COPY . .
 
-# Create verification script
-RUN echo "\
-import h5py, os\n\
-print('Model files:', os.listdir('Model_Train'))\n\
-try:\n\
-    h5py.File('Model_Train/rice_disease_model.h5', 'r')\n\
-    print('Rice model verified')\n\
-except Exception as e:\n\
-    print(f'Rice model error: {str(e)}')\n\
-" > verify_models.py
-
-# Verify model files
-RUN python verify_models.py
+# Verify LFS files were properly pulled
+RUN git lfs pull && \
+    ls -lh Model_Train/ && \
+    file Model_Train/rice_disease_model.h5 && \
+    python -c "
+import h5py
+h5py.File('Model_Train/rice_disease_model.h5', 'r')
+print('Model verification successful')
+"
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
