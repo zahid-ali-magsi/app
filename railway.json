@@ -5,11 +5,14 @@
       "config": {
         "setup": [
           "apt-get update",
-          "apt-get install -y libgl1 git-lfs",
+          "apt-get install -y libgl1 git git-lfs",
           "git lfs install",
-          "pip install --upgrade pip",
-          "pip install -r requirements.txt"
-        ]
+          "git lfs pull",
+          "find Model_Train -type f -exec ls -lh {} \\;"
+        ],
+        "variables": {
+          "TF_ENABLE_ONEDNN_OPTS": "0"
+        }
       }
     }
   }
