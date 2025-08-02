@@ -19,15 +19,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application (including .gitattributes)
 COPY . .
 
+# Create verification script
+RUN echo "\
+import h5py, os\n\
+print('Model files:', os.listdir('Model_Train'))\n\
+try:\n\
+    h5py.File('Model_Train/rice_disease_model.h5', 'r')\n\
+    print('Rice model verified')\n\
+except Exception as e:\n\
+    print(f'Rice model error: {str(e)}')\n\
+" > verify_models.py
+
 # Verify model files
-RUN python -c "
-import h5py, os
-print('Model files:', os.listdir('Model_Train'))
-try:
-    h5py.File('Model_Train/rice_disease_model.h5', 'r')
-    print('Rice model verified')
-except Exception as e:
-    print(f'Rice model error: {str(e)}')
-"
+RUN python verify_models.py
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
