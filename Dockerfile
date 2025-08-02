@@ -4,12 +4,8 @@ FROM python:3.10-slim
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1 \
-    git \
-    git-lfs \
+    file \
     && rm -rf /var/lib/apt/lists/*
-
-# Configure Git LFS
-RUN git lfs install
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +14,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code (including model files)
 COPY . .
 
 # Create verification script
@@ -53,14 +49,10 @@ verify_model("Model_Train/rice_disease_model.h5")\n\
 verify_model("Model_Train/wheat_inceptionv3_model.h5")\n\
 ' > verify_models.py
 
-# Run verifications
-RUN git lfs pull && \
-    # List files to verify they were pulled
-    ls -lh Model_Train/ && \
-    # Check file types
+# Run verifications (without git lfs)
+RUN ls -lh Model_Train/ && \
     file Model_Train/rice_disease_model.h5 && \
     file Model_Train/wheat_inceptionv3_model.h5 && \
-    # Run Python verification
     python verify_models.py
 
 # Set environment variables
