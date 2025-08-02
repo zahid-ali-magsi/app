@@ -303,6 +303,38 @@ def logout():
 
 
 
+import logging
+import h5py
+
+def load_model_with_validation(model_path, model_name=""):
+    try:
+        # Verify file signature
+        with open(model_path, 'rb') as f:
+            if f.read(4) != b'\x89HDF':
+                raise ValueError("Invalid HDF5 signature")
+        
+        # Verify file structure
+        with h5py.File(model_path, 'r') as f:
+            if 'model_config' not in f.attrs:
+                raise ValueError("Missing model configuration")
+        
+        # Load model
+        return load_model(model_path)
+        
+    except Exception as e:
+        logging.critical(f"❌ {model_name} loading failed: {str(e)}")
+        return None
+
+# Initialize models
+rice_model = load_model_with_validation(
+    'Model_Train/rice_disease_model.h5',
+    'Rice Model'
+)
+wheat_model = load_model_with_validation(
+    'Model_Train/wheat_inceptionv3_model.h5',
+    'Wheat Model'
+)
+
 # ====== Model Loading ======
 def load_disease_model():
     """Load model and class names with proper error handling"""
