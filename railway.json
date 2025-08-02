@@ -1,0 +1,18 @@
+{
+  "build": {
+    "lfs": true,
+    "nixpacks": {
+      "config": {
+        "setup": [
+          "apt-get update",
+          "apt-get install -y git-lfs",
+          "git lfs install",
+          "git lfs pull"
+        ]
+      }
+    }
+  },
+  "deploy": {
+    "startCommand": "python verify_models.py && gunicorn --bind 0.0.0.0:$PORT app:app"
+  }
+}
