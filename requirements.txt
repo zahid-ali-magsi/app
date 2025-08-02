@@ -30,6 +30,8 @@ scipy==1.13.0
 opencv-python-headless==4.9.0.80
 joblib==1.4.0
 pillow==10.3.0
+# Add these to your existing requirements
+git+https://github.com/git-lfs/git-lfs.git  # For proper LFS handling
 
 # ===== UTILITIES =====
 requests==2.32.3
@@ -38,3 +40,4 @@ bleach==6.1.0
 
 # ===== PRODUCTION =====
 gunicorn==23.0.0
+
