@@ -1,40 +1,36 @@
-# ====== CORE ======
+# ===== CORE =====
 Flask==3.0.3
 Werkzeug==3.0.2
 Jinja2==3.1.6
 itsdangerous==2.2.0
 
-# ====== DATABASE ======
+# ===== DATABASE =====
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.0.5
 SQLAlchemy==2.0.40
 alembic==1.15.2
 greenlet==3.2.1
 
-# ====== AUTH ======
+# ===== AUTH =====
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 WTForms==3.1.2
 email_validator==2.1.1
 
-# ====== MACHINE LEARNING ======
-tensorflow-cpu==2.19.0
+# ===== MACHINE LEARNING =====
+tensorflow-cpu==2.19.0  # Replaces tensorflow
 keras==3.9.2
 h5py==3.13.0
 numpy==1.26.4
-scipy==1.13.0
-opencv-python-headless==4.8.1.78
+scipy==1.13.0  # More stable version
+opencv-python-headless==4.9.0.80  # Only headless version
 joblib==1.4.0
 pillow==10.3.0
 
-# ====== PRODUCTION ======
+# ===== PRODUCTION =====
 gunicorn==23.0.0
 python-dotenv==1.0.1
 
-# ====== UTILITIES ======
+# ===== UTILITIES =====
 requests==2.32.3
 validators==0.35.0
-
-# System dependencies required:
-# libgl1 (for OpenCV)
-# git-lfs (for model files)
