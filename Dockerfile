@@ -1,14 +1,14 @@
-FROM python:3.10-slim
+FROM python:3.10
 
-# Install system dependencies for OpenCV
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    && rm -rf /var/lib/apt/lists/*
+# Install Git LFS
+RUN apt-get update && apt-get install -y git-lfs && git lfs install
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
+
+# Verify models before installation
+RUN python verify_models.py
+
+RUN pip install -r requirements.txt
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
