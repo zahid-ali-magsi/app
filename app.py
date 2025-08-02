@@ -306,8 +306,8 @@ def logout():
 # ====== Model Loading ======
 def load_disease_model():
     """Load model and class names with proper error handling"""
-    model_path = os.path.join(app.root_path, 'model_train/rice_disease_model.h5')
-    class_path = os.path.join(app.root_path, 'model_train/class_indices.pkl')
+    model_path = os.path.join(app.root_path, 'Model_Train/rice_disease_model.h5')
+    class_path = os.path.join(app.root_path, 'Model_Train/class_indices.pkl')
     
     try:
         model = load_model(model_path)
@@ -411,8 +411,8 @@ def rice_diagnosis():
 # ====== Wheat Model Loading ======
 def load_wheat_model():
     """Load wheat model and class names with error handling"""
-    model_path = os.path.join(app.root_path, 'model_train/wheat_inceptionv3_model.h5')
-    class_path = os.path.join(app.root_path, 'model_train/wheat_class_indices.pkl')
+    model_path = os.path.join(app.root_path, 'Model_Train/wheat_inceptionv3_model.h5')
+    class_path = os.path.join(app.root_path, 'Model_Train/wheat_class_indices.pkl')
 
     try:
         if not os.path.exists(model_path):
