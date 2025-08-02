@@ -1,58 +1,70 @@
-FROM python:3.10-slim
+# Use official Python 3.10 slim image
+FROM python:3.10-slim as builder
 
 # 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1 \
+    git \
+    git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Set working directory
+# Configure Git LFS
+RUN git lfs install
+
 WORKDIR /app
 
-# 3. Copy requirements first for caching
+# Copy only requirements first for caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir -r requirements.txt
 
-# 4. Copy ALL application files (including models)
+# Copy everything else
 COPY . .
 
-# 5. Verification script
-RUN echo '\
-import os\n\
-import h5py\n\
-print("=== Model Verification ===")\n\
-\n\
-def verify_model(model_path):\n\
-    print(f"\\nVerifying {model_path}")\n\
-    size_mb = os.path.getsize(model_path)/1024/1024\n\
-    print(f"Size: {size_mb:.2f} MB")\n\
-    \n\
-    try:\n\
-        with h5py.File(model_path, "r") as f:\n\
-            if "model_weights" not in f:\n\
-                raise ValueError("Missing model_weights in HDF5")\n\
-            print(f"Layers found: {len(f[\'model_weights\'])}")\n\
-        print("✅ Verification passed")\n\
-        return True\n\
-    except Exception as e:\n\
-        print(f"❌ Verification failed: {str(e)}")\n\
-        return False\n\
-\n\
-# Verify both models\n\
-rice_ok = verify_model("Model_Train/rice_disease_model.h5")\n\
-wheat_ok = verify_model("Model_Train/wheat_inceptionv3_model.h5")\n\
-\n\
-if not (rice_ok and wheat_ok):\n\
-    raise RuntimeError("Model verification failed")\n\
-' > verify_models.py
+# Fetch LFS files
+RUN git lfs fetch && git lfs checkout
 
-# 6. Run verification
-RUN python verify_models.py && \
-    echo "All models verified successfully"
+# --------------------------------------------------
+# Production stage
+FROM python:3.10-slim
 
-# 7. Production configuration
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /root/.local
+COPY --from=builder /app /app
+
+# Ensure scripts in .local are usable
+ENV PATH=/root/.local/bin:$PATH
+
+# Model verification
+RUN python -c "\
+import os, h5py; \
+print('=== Model Verification ==='); \
+for model in ['Model_Train/rice_disease_model.h5', 'Model_Train/wheat_inceptionv3_model.h5']: \
+    print(f'\nVerifying {model}'); \
+    size = os.path.getsize(model); \
+    assert size > 10*1024*1024, f'Model too small: {size} bytes'; \
+    with h5py.File(model, 'r') as f: \
+        assert 'model_weights' in f, 'Invalid HDF5 structure'; \
+    print(f'✅ Verified ({size/1024/1024:.2f} MB)'; \
+print('\nAll models verified successfully'); \
+"
+
+# Production configuration
 ENV FLASK_ENV=production \
     TF_ENABLE_ONEDNN_OPTS=0 \
-    TF_CPP_MIN_LOG_LEVEL=2
+    TF_CPP_MIN_LOG_LEVEL=2 \
+    PYTHONUNBUFFERED=1
 
+# Set non-root user
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
+
+# Expose and run
 EXPOSE 8080
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "app:app"]
