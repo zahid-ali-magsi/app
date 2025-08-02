@@ -7,12 +7,10 @@
           "apt-get update",
           "apt-get install -y git-lfs",
           "git lfs install",
-          "git lfs pull"
+          "git lfs pull",
+          "python verify_models.py"
         ]
       }
     }
-  },
-  "deploy": {
-    "startCommand": "python verify_models.py && gunicorn --bind 0.0.0.0:$PORT app:app"
   }
 }
