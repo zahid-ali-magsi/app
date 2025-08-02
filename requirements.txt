@@ -11,16 +11,15 @@ SQLAlchemy==2.0.40
 alembic==1.15.2
 greenlet==3.2.1
 
-# ===== AUTHENTICATION & SECURITY =====
+# ===== AUTH & SECURITY =====
 Flask-Login==0.6.3
 Flask-WTF==1.2.1
 WTForms==3.1.2
 email_validator==2.1.1
-bleach==6.1.0
 
 # ===== EMAIL =====
 Flask-Mail==0.9.1
-blinker==1.9.0
+blinker==1.9.0  # Required for email signals
 
 # ===== MACHINE LEARNING =====
 tensorflow-cpu==2.19.0
@@ -35,12 +34,7 @@ pillow==10.3.0
 # ===== UTILITIES =====
 requests==2.32.3
 python-dotenv==1.0.1
-werkzeug==3.0.2
+bleach==6.1.0
 
 # ===== PRODUCTION =====
 gunicorn==23.0.0
-
-# ===== SYSTEM DEPENDENCIES =====
-# Required system packages:
-# libgl1 (for OpenCV)
-# git-lfs (for model files)
