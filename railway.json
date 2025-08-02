@@ -7,11 +7,13 @@
           "apt-get update",
           "apt-get install -y libgl1 git git-lfs",
           "git lfs install",
-          "git lfs pull",
-          "find Model_Train -type f -exec ls -lh {} \\;"
+          "git lfs fetch origin main",
+          "git lfs checkout",
+          "find Model_Train -type f -exec file {} \\;"
         ],
         "variables": {
-          "TF_ENABLE_ONEDNN_OPTS": "0"
+          "TF_ENABLE_ONEDNN_OPTS": "0",
+          "GIT_LFS_SKIP_SMUDGE": "0"
         }
       }
     }
