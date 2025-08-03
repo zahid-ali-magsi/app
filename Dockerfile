@@ -1,10 +1,27 @@
+FROM python:3.10-slim
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
 # Model verification (fixed syntax and path handling)
-RUN mkdir -p Model_Train && \
-    python -c "\
+RUN python -c "\
 import os; \
 import h5py; \
 print('=== Model Verification ==='); \
-models = ['Model_Train/rice_disease_model.h5', 'Model_Train/wheat_inceptionv3_model.h5']; \
+models = ['Model_Traain/rice_disease_model.h5', 'Model_Traain/wheat_inceptionv3_model.h5']; \
 all_verified = True; \
 for model in models: \
     try: \
@@ -26,3 +43,9 @@ if not all_verified: \
     raise RuntimeError('Model verification failed'); \
 print('\nAll models verified successfully'); \
 "
+
+# Expose port (Flask default)
+EXPOSE 5000
+
+# Start the app (adjust if your entrypoint is different)
+CMD ["gunicorn", "-b",
