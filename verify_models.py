@@ -4,8 +4,8 @@ import h5py
 
 print('=== Model Verification ===')
 models = [
-    'Model_Traain/rice_disease_model.h5',
-    'Model_Traain/wheat_inceptionv3_model.h5'
+    'Model_Train/rice_disease_model.h5',
+    'Model_Train/wheat_inceptionv3_model.h5'
 ]
 all_verified = True
 for model in models:
