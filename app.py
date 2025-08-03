@@ -21,7 +21,6 @@ from forms import CommentForm
 from bleach import clean
 from models import Comment
 from werkzeug.utils import secure_filename
-import cv2
 import joblib
 import numpy as np
 from tensorflow.keras.models import load_model 
@@ -35,6 +34,9 @@ from forms import DeleteForm
 from flask import abort  # Add this import at the top
 from sqlalchemy.exc import SQLAlchemyError  # Add this import
 from forms import WheatDiagnosisForm
+
+
+
 
 
 app = Flask(__name__)
@@ -120,6 +122,10 @@ def confirm_verification_token(token, expiration=3600):
     except Exception:
         return False
     return email
+
+
+
+
 
 
 def log_activity(user_id, activity_type, details, ip_address=None, comment_content=None, treatment_recommendations=None):
@@ -291,7 +297,6 @@ def dashboard():
 
 
 
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -303,43 +308,29 @@ def logout():
 
 
 
-import logging
-import h5py
 
-def load_model_with_validation(model_path, model_name=""):
+def load_model_safe(model_path):
     try:
-        # Verify file signature
+        # Verify file signature first
         with open(model_path, 'rb') as f:
-            if f.read(4) != b'\x89HDF':
+            header = f.read(4)
+            if header != b'\x89HDF':
                 raise ValueError("Invalid HDF5 signature")
         
-        # Verify file structure
-        with h5py.File(model_path, 'r') as f:
-            if 'model_config' not in f.attrs:
-                raise ValueError("Missing model configuration")
-        
-        # Load model
+        # Load with explicit file handling
         return load_model(model_path)
-        
     except Exception as e:
-        logging.critical(f"❌ {model_name} loading failed: {str(e)}")
+        app.logger.error(f"Model loading failed: {str(e)}")
         return None
 
-# Initialize models
-rice_model = load_model_with_validation(
-    'Model_Train/rice_disease_model.h5',
-    'Rice Model'
-)
-wheat_model = load_model_with_validation(
-    'Model_Train/wheat_inceptionv3_model.h5',
-    'Wheat Model'
-)
+# Usage:
+rice_model = load_model_safe('Model_Train/rice_disease_model.h5')
 
 # ====== Model Loading ======
 def load_disease_model():
     """Load model and class names with proper error handling"""
-    model_path = os.path.join(app.root_path, 'Model_Train/rice_disease_model.h5')
-    class_path = os.path.join(app.root_path, 'Model_Train/class_indices.pkl')
+    model_path = os.path.join(app.root_path, 'model_train/rice_disease_model.h5')
+    class_path = os.path.join(app.root_path, 'model_train/class_indices.pkl')
     
     try:
         model = load_model(model_path)
@@ -443,8 +434,8 @@ def rice_diagnosis():
 # ====== Wheat Model Loading ======
 def load_wheat_model():
     """Load wheat model and class names with error handling"""
-    model_path = os.path.join(app.root_path, 'Model_Train/wheat_inceptionv3_model.h5')
-    class_path = os.path.join(app.root_path, 'Model_Train/wheat_class_indices.pkl')
+    model_path = os.path.join(app.root_path, 'model_train/wheat_inceptionv3_model.h5')
+    class_path = os.path.join(app.root_path, 'model_train/wheat_class_indices.pkl')
 
     try:
         if not os.path.exists(model_path):
@@ -551,6 +542,7 @@ def wheat_diagnosis():
                 os.remove(filepath)
 
     return render_template('wheat.html', form=form, prediction=prediction)
+
 
 
 
@@ -909,3 +901,5 @@ if __name__ == '__main__':
         db.create_all()
         create_admin_user()
     app.run(debug=True)
+
+
