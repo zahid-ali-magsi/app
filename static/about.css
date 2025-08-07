@@ -183,3 +183,93 @@ body {
                 width: 90%;
             }
         }
+
+
+
+/* === Add to end of about.css for better mobile responsiveness === */
+
+@media screen and (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 10px;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .sidebar ul li {
+    margin: 5px;
+    padding: 0;
+  }
+
+  .sidebar a {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  main {
+    margin-left: 0;
+    padding: 20px 10px;
+  }
+
+  .disease-card {
+    width: 95%;
+    margin-bottom: 20px;
+  }
+
+  .disease-grid {
+    gap: 20px;
+  }
+
+  .comment-section,
+  .contact-section {
+    width: 90%;
+    padding: 20px;
+  }
+
+  header {
+    font-size: 1.5em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sidebar a {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  header {
+    font-size: 1.3em;
+  }
+
+  .intro,
+  .contact-section p {
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+  }
+
+  textarea {
+    font-size: 14px;
+  }
+}
